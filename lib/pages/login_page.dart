@@ -1,9 +1,12 @@
+import 'package:chat_realtime/helpers/show_alerts.dart';
+import 'package:chat_realtime/services/auth_service.dart';
 import 'package:chat_realtime/widgets/btn_azul.dart';
 import 'package:chat_realtime/widgets/custom_input.dart';
 import 'package:chat_realtime/widgets/labels.dart';
 import 'package:chat_realtime/widgets/logo.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -51,6 +54,7 @@ class __FormState extends State<_Form> {
 
   @override
   Widget build(BuildContext context) {
+    final authService = Provider.of<AuthService>(context, listen: false);
     return Container(
       margin: const EdgeInsets.only(top: 40),
       padding: const EdgeInsets.symmetric(horizontal: 50),
@@ -69,11 +73,23 @@ class __FormState extends State<_Form> {
             textController: passwordCtrl,
           ),
           BtnAzul(
-              text: "Iniciar Sesión",
-              callBackFunction: () {
-                print(emailCtrl.text);
-                print(passwordCtrl.text);
-              }),
+            text: "Iniciar Sesión",
+            callBackFunction: authService.authenticating
+                ? null
+                : () async {
+                    FocusScope.of(context).unfocus();
+                    final isLogged = await authService.signIn(
+                        emailCtrl.text.trim(), passwordCtrl.text.trim());
+
+                    if (isLogged) {
+                      // Connect to scket server
+                      Navigator.pushReplacementNamed(context, 'usuarios');
+                    } else {
+                      showAlert(context, "Error en el Login",
+                          "Compruebe que sus credenciales son correctas!");
+                    }
+                  },
+          ),
         ],
       ),
     );
