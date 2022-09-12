@@ -1,5 +1,8 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:chat_realtime/helpers/show_alerts.dart';
 import 'package:chat_realtime/services/auth_service.dart';
+import 'package:chat_realtime/services/socket_service.dart';
 import 'package:chat_realtime/widgets/btn_azul.dart';
 import 'package:chat_realtime/widgets/custom_input.dart';
 import 'package:chat_realtime/widgets/labels.dart';
@@ -55,6 +58,7 @@ class __FormState extends State<_Form> {
   @override
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthService>(context, listen: false);
+    final socketService = Provider.of<SocketService>(context);
     return Container(
       margin: const EdgeInsets.only(top: 40),
       padding: const EdgeInsets.symmetric(horizontal: 50),
@@ -82,7 +86,7 @@ class __FormState extends State<_Form> {
                         emailCtrl.text.trim(), passwordCtrl.text.trim());
 
                     if (isLogged) {
-                      // Connect to scket server
+                      socketService.connect();
                       Navigator.pushReplacementNamed(context, 'usuarios');
                     } else {
                       showAlert(context, "Error en el Login",
